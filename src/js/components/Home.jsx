@@ -1,26 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
 
 //create your first component
 const Home = () => {
+
+	const url = 'https://playground.4geeks.com/todo'
+	const [myUser, setMyUser] = useState('Samu')
+	const [data, setData] = useState({})
+	useEffect(() => { getMyUser() }, [])
+
+	const getMyUser = async () => {
+		try {
+			const resp = await fetch(`${url}/users/${myUser}`)
+			if (resp.status === 404) return createUser()
+			if (!resp.ok) throw new Error('Error en GET')
+			const data = await resp.json()
+			console.log(data);
+			return setData(data)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const createUser = async () => {
+		try {
+			const resp = await fetch(`${url}/users/${myUser}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+			if (resp.ok) return getMyUser();
+			throw new Error('Error en método POST')
+		} catch (error) {
+			console.log(error)
+		}
+
+	}
+
+
+
 	return (
 		<div className="text-center">
-            
 
 			<h1 className="text-center mt-5">Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working...
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
+
 		</div>
 	);
 };
