@@ -14,9 +14,9 @@ const Home = () => {
 			const resp = await fetch(`${url}/users/${myUser}`)
 			if (resp.status === 404) return createUser()
 			if (!resp.ok) throw new Error('Error en GET')
-			const data = await resp.json()
-			console.log(data);
-			return setData(data)
+			const userData = await resp.json()
+			console.log(userData);
+			setData(userData)
 		} catch (error) {
 			console.log(error)
 		}
