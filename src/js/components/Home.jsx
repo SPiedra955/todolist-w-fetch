@@ -8,6 +8,9 @@ const Home = () => {
 	const [myUser, setMyUser] = useState('Samu')
 	const [data, setData] = useState({})
 	useEffect(() => { getMyUser() }, [])
+	const [newTask, setNewTask] = useState('')
+	const [error, setError] = useState('')
+
 
 	const getMyUser = async () => {
 		try {
@@ -38,6 +41,29 @@ const Home = () => {
 
 	}
 
+	const createTodos = async (e) => {
+		e.preventDefault();
+		try {
+			if (newTask.trim().length === 0) return setError('No puede estar vacía la tarea')
+			if (newTask.trim().length < 3) return setError('Tiene que ser superior a 3 caracteres')
+			const formattedData = {
+				label: newTask.trim(),
+				is_done: false
+			}
+			const resp = await fetch(`${url}/todos/${myUser}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formattedData)
+			})
+			if (!resp.ok) throw new Error('Request not ok');
+			setNewTask('')
+			return getMyUser()
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
 
 	return (
