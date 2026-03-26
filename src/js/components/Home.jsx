@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash, faCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons'
 
 //create your first component
 const Home = () => {
@@ -100,10 +101,43 @@ const Home = () => {
 		}
 	}
 
+	// Quitar el error del estado
+	useEffect(() => {
+		if (error != '') {
+			setTimeout(() => {
+				setError('')
+			}, 3000)
+		}
+	}, [error])
+
 	return (
 		<div className="text-center">
 
-			<h1 className="text-center mt-5">Hello Rigo!</h1>
+			<h1 className="text-center mt-5">Lista de tareas de {data.name}</h1>
+
+			{error && <div className="bg-danger"> {error}</div>}
+
+			<form onSubmit={createTodos} >
+				<input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} />
+				<input type="submit" />
+			</form>
+
+			<ul>
+
+				{data.todos?.map(el => <li key={el.id} className={el.is_done ? ' bg-success' : 'border'}>
+					{el.label}
+					<span onClick={() => updateTodos(el)}>
+						<FontAwesomeIcon
+							className="mx-3"
+							icon={el.is_done ? faCircleXmark : faCheck}
+						/>
+					</span>
+
+					<span onClick={() => deleteTodo(el.id)}>
+						<FontAwesomeIcon icon={faTrash} />
+					</span>
+				</li>)}
+			</ul>
 
 		</div>
 	);
