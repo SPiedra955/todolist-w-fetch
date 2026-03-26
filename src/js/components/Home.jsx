@@ -65,6 +65,19 @@ const Home = () => {
 		}
 	}
 
+	const deleteTodo = async (id) => {
+		try {
+			const resp = await fetch(url + '/todos/' + id, {
+				method: "DELETE"
+			})
+			if (!resp.ok) throw new Error('error deleting ')
+			return getMyUser()
+		} catch (error) {
+			console.log(error)
+			setError(error)
+
+		}
+	}
 
 	return (
 		<div className="text-center">
