@@ -70,12 +70,33 @@ const Home = () => {
 			const resp = await fetch(url + '/todos/' + id, {
 				method: "DELETE"
 			})
-			if (!resp.ok) throw new Error('error deleting ')
+			if (!resp.ok) throw new Error('Error deleting ')
 			return getMyUser()
 		} catch (error) {
 			console.log(error)
 			setError(error)
 
+		}
+	}
+
+	const updateTodos = async ({ id, label, is_done }) => {
+		try {
+			const formattedData = {
+				label,
+				is_done: !is_done
+			}
+			const resp = await fetch(url + '/todos/' + id, {
+				method: "PUT",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formattedData)
+			})
+			if (!resp.ok) throw new Error('Error completing task')
+			return getMyUser()
+		} catch (error) {
+			console.log(error)
+			setError(error)
 		}
 	}
 
