@@ -37,18 +37,26 @@ const Home = () => {
         return setError("No puede estar vacía el campo usuario");
       if (myUser.trim().length < 3)
         return setError("Tiene que ser superior a 3 caracteres");
-      const resp = await fetch(`${url}/users/${myUser}`, {
+
+      const checkUser = await fetch(`${url}/users/${myUser}`);
+      if (checkUser.ok) {
+        setError("Usuario ya existe, cargando TODOS...");
+        setMyUser("");
+        return getMyUser();
+      }
+
+      const createUser = await fetch(`${url}/users/${myUser}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (resp.ok) {
+
+      if (createUser.ok) {
         setError("");
         setMyUser("");
         return getMyUser();
       }
-      throw new Error("Error en método POST");
     } catch (error) {
       console.log(error);
     }
@@ -65,7 +73,8 @@ const Home = () => {
         label: newTask.trim(),
         is_done: false,
       };
-      const resp = await fetch(`${url}/todos/${myUser}`, {
+      //   COGEMOS EL NOMBRE DEL USUARIO DEL JSON
+      const resp = await fetch(`${url}/todos/${data.name}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,52 +133,77 @@ const Home = () => {
   }, [error]);
 
   return (
-    <div className="text-center">
-      <h1 className="text-center mt-5">
-        {data.name
-          ? `Lista de tareas de ${data.name}`
-          : `Crea un usuario para crear lista TODOS`}
-      </h1>
+    <div className="container mt-5">
+      <div className="card shadow-lg p-4">
+        <h1 className="text-center mb-4">
+          {data.name
+            ? `Lista de tareas de ${data.name}`
+            : `Crea un usuario para empezar`}
+        </h1>
 
-      {error && <div className="bg-danger"> {error}</div>}
+        {error && <div className="alert alert-danger text-center">{error}</div>}
 
-      {data.name ? (
-        <form onSubmit={createTodos}>
-          <input
-            type="text"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-          />
-          <input type="submit" />
-        </form>
-      ) : (
-        <form onSubmit={createUser}>
-          <input
-            type="text"
-            value={myUser}
-            onChange={(e) => setMyUser(e.target.value)}
-          />
-          <input type="submit" value="Crear usuario" />
-        </form>
-      )}
+        {data.name ? (
+          <form onSubmit={createTodos} className="d-flex gap-2 mb-4">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Nueva tarea..."
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+            />
+            <button className="btn btn-primary">Añadir</button>
+          </form>
+        ) : (
+          <form onSubmit={createUser} className="d-flex gap-2 mb-4">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Nombre de usuario..."
+              value={myUser}
+              onChange={(e) => setMyUser(e.target.value)}
+            />
+            <button className="btn btn-success">Crear</button>
+          </form>
+        )}
 
-      <ul>
-        {data.todos?.map((el) => (
-          <li key={el.id} className={el.is_done ? " bg-success" : "border"}>
-            {el.label}
-            <span onClick={() => updateTodos(el)}>
-              <FontAwesomeIcon
-                className="mx-3"
-                icon={el.is_done ? faCircleXmark : faCheck}
-              />
-            </span>
+        <ul className="list-group border-0">
+          {data.todos?.map((el) => (
+            <li
+              key={el.id}
+              className={`list-group-item d-flex justify-content-between align-items-center ${
+                el.is_done ? "list-group-item-success" : ""
+              }`}
+            >
+              <span
+                className={el.is_done ? "text-decoration-line-through" : ""}
+              >
+                {el.label}
+              </span>
 
-            <span onClick={() => deleteTodo(el.id)}>
-              <FontAwesomeIcon icon={faTrash} />
-            </span>
-          </li>
-        ))}
-      </ul>
+              <div>
+                <button
+                  className={`btn btn-sm me-2 ${
+                    el.is_done ? "btn-warning" : "btn-success"
+                  }`}
+                  onClick={() => updateTodos(el)}
+                >
+                  <FontAwesomeIcon
+                    icon={el.is_done ? faCircleXmark : faCheck}
+                  />
+                </button>
+
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => deleteTodo(el.id)}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
