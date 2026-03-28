@@ -16,10 +16,12 @@ const Home = () => {
   }, []);
   const [newTask, setNewTask] = useState("");
   const [error, setError] = useState("");
+  const [currentUser, setCurrentUser] = useState(""); // VARIABLE PARA PASAR EL USUARIO
 
   const getMyUser = async () => {
     try {
-      const resp = await fetch(`${url}/users/${myUser}`);
+      if (!currentUser) return;
+      const resp = await fetch(`${url}/users/${currentUser}`);
       if (resp.status === 404) return createUser();
       if (!resp.ok) throw new Error("Error en GET");
       const userData = await resp.json();
@@ -40,6 +42,7 @@ const Home = () => {
 
       const checkUser = await fetch(`${url}/users/${myUser}`);
       if (checkUser.ok) {
+        setCurrentUser(myUser);
         setError("Usuario ya existe, cargando TODOS...");
         setMyUser("");
         return getMyUser();
@@ -74,7 +77,7 @@ const Home = () => {
         is_done: false,
       };
       //   COGEMOS EL NOMBRE DEL USUARIO DEL JSON
-      const resp = await fetch(`${url}/todos/${data.name}`, {
+      const resp = await fetch(`${url}/todos/${currentUser}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
